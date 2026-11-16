@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Feedback Form</title>
+  <style>
+    :root {
+      --purple: #673ab7;
+      --purple-dark: #512da8;
+      --page: #f0ebf8;
+      --text: #202124;
+      --muted: #5f6368;
+      --border: #dadce0;
+      --white: #fff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 16px 56px;
+      background: var(--page);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .container { width: min(100%, 680px); margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; margin-bottom: 14px;
+    }
+    .brand { color: var(--muted); font-size: 13px; }
+    .admin-toggle {
+      border: 1px solid var(--border); background: white; color: var(--purple);
+      padding: 9px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    }
+    .card {
+      background: var(--white); border: 1px solid #e0dce7;
+      border-radius: 10px; margin-bottom: 13px; padding: 24px;
+      box-shadow: 0 1px 2px rgba(60, 40, 90, .06);
+    }
+    .heading { border-top: 10px solid var(--purple); padding-top: 24px; }
+    h1 { font-size: 28px; font-weight: 500; margin: 0 0 12px; }
+    h2 { font-size: 20px; font-weight: 500; margin: 0 0 16px; }
+    p { line-height: 1.5; }
+    .description { color: var(--muted); margin: 0 0 18px; }
+    .required-note { color: #b3261e; font-size: 13px; margin: 0; }
+    .question-title { display: block; font-size: 16px; margin-bottom: 17px; }
+    .required-star { color: #b3261e; }
+    input[type="text"], input[type="email"], select, textarea {
+      width: 100%; border: 0; border-bottom: 1px solid #9aa0a6;
+      border-radius: 0; padding: 10px 2px; background: transparent;
+      color: var(--text); font: inherit; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-bottom: 2px solid var(--purple); }
+    textarea { resize: vertical; min-height: 70px; }
+    .choice { display: flex; align-items: center; gap: 11px; margin: 15px 0; }
+    .choice input { width: 18px; height: 18px; accent-color: var(--purple); }
+    .choice label { line-height: 1.4; }
+    .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    button.primary {
+      border: 0; border-radius: 5px; padding: 12px 22px;
+      background: var(--purple); color: white; font-size: 14px;
+      font-weight: 600; cursor: pointer;
+    }
+    button.primary:hover { background: var(--purple-dark); }
+    button.secondary {
+      border: 0; background: transparent; color: var(--purple);
+      padding: 10px 4px; cursor: pointer; font-weight: 600;
+    }
+    button:focus-visible { outline: 3px solid #c6b5e8; outline-offset: 2px; }
+    .message { display: none; padding: 18px; border-radius: 8px; margin-bottom: 14px; }
+    .message.success { background: #e6f4ea; color: #137333; }
+    .message.error { background: #fce8e6; color: #b3261e; }
+    .small { color: var(--muted); font-size: 12px; }
+    .admin-panel { display: none; }
+    .response-item { border-top: 1px solid var(--border); padding: 14px 0; }
+    .response-item:first-child { border-top: 0; }
+    .response-item strong { display: block; margin-bottom: 5px; }
+    .response-item p { margin: 4px 0; color: var(--muted); font-size: 14px; }
+    .empty { color: var(--muted); padding: 18px 0; }
+    .footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 22px; }
+    @media (max-width: 520px) {
+      body { padding: 18px 10px 36px; }
+      .card { padding: 20px 18px; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <span class="brand">FORM • STUDENT FEEDBACK</span>
+      <button class="admin-toggle" id="adminToggle" type="button">View responses</button>
+    </div>
+
+    <section id="formView">
+      <form id="feedbackForm" novalidate>
+        <header class="card heading">
+          <h1>Student Feedback Form</h1>
+          <p class="description">Please complete this form to share your feedback. Your responses will be saved in this browser.</p>
+          <p class="required-note">* Indicates a required question</p>
+        </header>
+
+        <div class="message error" id="errorMessage" role="alert"></div>
+
+        <section class="card">
+          <label class="question-title" for="fullName">Full name <span class="required-star">*</span></label>
+          <input id="fullName" name="fullName" type="text" placeholder="Your answer" autocomplete="name" required>
+        </section>
+
+        <section class="card">
+          <label class="question-title" for="email">Email address <span class="required-star">*</span></label>
+          <input id="email" name="email" type="email" placeholder="name@example.com" autocomplete="email" required>
+        </section>
+
+        <section class="card">
+          <label class="question-title" for="year">Which year are you studying in? <span class="required-star">*</span></label>
+          <select id="year" name="year" required>
+            <option value="">Select your year</option>
+            <option>First Year</option>
+            <option>Second Year</option>
+            <option>Third Year</option>
+            <option>Fourth Year</option>
+            <option>Other</option>
+          </select>
+        </section>
+
+        <section class="card">
+          <span class="question-title">How would you rate your experience? <span class="required-star">*</span></span>
+          <div class="choice"><input id="excellent" type="radio" name="rating" value="Excellent" required><label for="excellent">Excellent</label></div>
+          <div class="choice"><input id="good" type="radio" name="rating" value="Good"><label for="good">Good</label></div>
+          <div class="choice"><input id="average" type="radio" name="rating" value="Average"><label for="average">Average</label></div>
+          <div class="choice"><input id="poor" type="radio" name="rating" value="Poor"><label for="poor">Poor</label></div>
+        </section>
+
+        <section class="card">
+          <span class="question-title">Which topics interest you?</span>
+          <div class="choice"><input id="programming" type="checkbox" name="interests" value="Programming"><label for="programming">Programming</label></div>
+          <div class="choice"><input id="ai" type="checkbox" name="interests" value="Artificial Intelligence"><label for="ai">Artificial Intelligence</label></div>
+          <div class="choice"><input id="robotics" type="checkbox" name="interests" value="Robotics"><label for="robotics">Robotics</label></div>
+          <div class="choice"><input id="web" type="checkbox" name="interests" value="Web Development"><label for="web">Web Development</label></div>
+        </section>
+
+        <section class="card">
+          <label class="question-title" for="feedback">Additional feedback</label>
+          <textarea id="feedback" name="feedback" placeholder="Your answer"></textarea>
+        </section>
+
+        <div class="actions">
+          <button class="primary" type="submit">Submit</button>
+          <button class="secondary" type="reset">Clear form</button>
+        </div>
+        <p class="small">This is a demo form. Responses are stored locally in this browser only.</p>
+      </form>
+
+      <section class="card message success" id="successMessage" role="status">
+        <h2>✓ Response submitted</h2>
+        <p>Thank you for sharing your feedback.</p>
+        <button class="secondary" id="anotherResponse" type="button">Submit another response</button>
+      </section>
+    </section>
+
+    <section class="admin-panel" id="responsesView">
+      <div class="card heading">
+        <h1>Form responses</h1>
+        <p class="description">Responses saved in this browser on this device.</p>
+        <div class="actions">
+          <button class="primary" id="downloadCsv" type="button">Download CSV</button>
+          <button class="secondary" id="backToForm" type="button">Back to form</button>
+          <button class="secondary" id="clearResponses" type="button">Delete all responses</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2 id="responseCount">0 responses</h2>
+        <div id="responseList" class="empty">No responses yet.</div>
+      </div>
+    </section>
+
+    <footer class="footer">Created with HTML, CSS and JavaScript</footer>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "studentFeedbackResponses";
+    const form = document.getElementById("feedbackForm");
+    const formView = document.getElementById("formView");
+    const responsesView = document.getElementById("responsesView");
+    const successMessage = document.getElementById("successMessage");
+    const errorMessage = document.getElementById("errorMessage");
+
+    function getResponses() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveResponses(responses) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(responses));
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      errorMessage.style.display = "none";
+
+      if (!form.reportValidity()) return;
+
+      const formData = new FormData(form);
+      const response = {
+        id: Date.now(),
+        submittedAt: new Date().toISOString(),
+        fullName: formData.get("fullName").trim(),
+        email: formData.get("email").trim(),
+        year: formData.get("year"),
+        rating: formData.get("rating"),
+        interests: formData.getAll("interests"),
+        feedback: formData.get("feedback").trim()
+      };
+
+      if (!response.fullName || !response.email || !response.year || !response.rating) {
+        errorMessage.textContent = "Please complete all required questions.";
+        errorMessage.style.display = "block";
+        return;
+      }
+
+      const responses = getResponses();
+      responses.push(response);
+
+      try {
+        saveResponses(responses);
+      } catch {
+        errorMessage.textContent = "Your response could not be saved. Check your browser storage settings.";
+        errorMessage.style.display = "block";
+        return;
+      }
+
+      form.style.display = "none";
+      successMessage.style.display = "block";
+    });
+
+    document.getElementById("anotherResponse").addEventListener("click", () => {
+      form.reset();
+      form.style.display = "block";
+      successMessage.style.display = "none";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.getElementById("adminToggle").addEventListener("click", showResponses);
+    document.getElementById("backToForm").addEventListener("click", () => {
+      responsesView.style.display = "none";
+      formView.style.display = "block";
+      document.getElementById("adminToggle").textContent = "View responses";
+    });
+
+    function showResponses() {
+      renderResponses();
+      formView.style.display = "none";
+      responsesView.style.display = "block";
+      document.getElementById("adminToggle").textContent = "Form";
+    }
+
+    function renderResponses() {
+      const responses = getResponses();
+      const list = document.getElementById("responseList");
+      document.getElementById("responseCount").textContent =
+        `${responses.length} response${responses.length === 1 ? "" : "s"}`;
+
+      list.innerHTML = "";
+      if (!responses.length) {
+        list.textContent = "No responses yet.";
+        list.className = "empty";
+        return;
+      }
+
+      list.className = "";
+      [...responses].reverse().forEach((r, index) => {
+        const item = document.createElement("article");
+        item.className = "response-item";
+
+        const title = document.createElement("strong");
+        title.textContent = `${responses.length - index}. ${r.fullName}`;
+        const details = document.createElement("p");
+        details.textContent = `${r.email} • ${r.year} • Rating: ${r.rating}`;
+        const interests = document.createElement("p");
+        interests.textContent = `Interests: ${(r.interests || []).join(", ") || "None selected"}`;
+        const feedback = document.createElement("p");
+        feedback.textContent = `Feedback: ${r.feedback || "No additional feedback"}`;
+        const date = document.createElement("p");
+        date.textContent = `Submitted: ${new Date(r.submittedAt).toLocaleString()}`;
+
+        item.append(title, details, interests, feedback, date);
+        list.appendChild(item);
+      });
+    }
+
+    document.getElementById("downloadCsv").addEventListener("click", () => {
+      const responses = getResponses();
+      if (!responses.length) {
+        alert("There are no responses to download yet.");
+        return;
+      }
+
+      const columns = ["Submitted At", "Full Name", "Email", "Year", "Rating", "Interests", "Feedback"];
+      const rows = responses.map(r => [
+        r.submittedAt, r.fullName, r.email, r.year, r.rating,
+        (r.interests || []).join("; "), r.feedback
+      ]);
+
+      const escapeCsv = value =>
+        '"' + String(value ?? "").replace(/"/g, '""') + '"';
+
+      const csv = [columns, ...rows].map(row => row.map(escapeCsv).join(",")).join("\r\n");
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "student-feedback-responses.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("clearResponses").addEventListener("click", () => {
+      if (confirm("Delete all responses saved in this browser? This cannot be undone.")) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderResponses();
+      }
+    });
+  </script>
+</body>
+</html>
